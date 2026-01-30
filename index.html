@@ -1,12 +1,202 @@
-<html>
-  <head>
-    <link rel="stylesheet" href="yaichki.css">
-  </head>
-  <body>
-    <div>
-    <img src="https://koshka.top/uploads/posts/2021-12/1640053929_6-koshka-top-p-semenniki-u-kota-6.jpg" style="height:450px;">  
-<p id="test"> ЯЙЦА КОШКИ
-</p>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #141414;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column-reverse;
+}
+
+/* КОТ */
+.card {
+  display: flex;
+  justify-content: center;
+  flex-direction: column-reverse;
+  align-items: center;
+  background: linear-gradient(#e87b07, #7649a3);
+  padding: 15px;
+  padding-top: 30px;
+  border: 25px dotted white;
+  border-radius: 10px;
+}
+
+#test {
+  margin: 1px;
+  font-family: arial;
+  font-size: 100px;
+  color: white;
+}
+
+/* МАЯТНИК */
+#pendulum {
+  position: fixed;
+  top: 0;
+  left: 120px;
+  pointer-events: none;
+}
+
+/* ВЕРЁВКА */
+.segment {
+  position: absolute;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    #f5f5f5 0%,
+    #bdbdbd 50%,
+    #8f8f8f 100%
+  );
+}
+
+/* УЗЕЛ */
+#knot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ddd, #888);
+}
+
+/* ЯЙЦА */
+#balls {
+  position: absolute;
+  display: flex;
+  gap: 10px;
+}
+
+.ball {
+  width: 78px;
+  height: 92px;
+  border-radius: 50% 50% 55% 55%;
+  background:
+    radial-gradient(circle at 35% 25%, #ffe2cf, #c78a65 55%, #7e5034);
+  box-shadow:
+    inset -12px -18px 22px rgba(0,0,0,0.35),
+    inset 10px 10px 16px rgba(255,255,255,0.2);
+}
+
+.ball.left { transform: rotate(-6deg); }
+.ball.right { transform: rotate(6deg); }
+</style>
+</head>
+
+<body>
+
+<div id="pendulum"></div>
+
+<div class="card">
+  <img src="https://koshka.top/uploads/posts/2021-12/1640053929_6-koshka-top-p-semenniki-u-kota-6.jpg" style="height:450px;">
+  <p id="test">ЯЙЦА КОШКИ</p>
 </div>
-</body>  
+
+<script>
+const pendulum = document.getElementById("pendulum");
+
+const SEGMENTS = 16;
+const LENGTH = 14;
+const GRAVITY = 0.45;
+const FRICTION = 0.998;
+
+let mouseX = 120;
+
+document.addEventListener("mousemove", e => mouseX = e.clientX);
+
+// точки верёвки
+const points = [];
+for (let i = 0; i < SEGMENTS; i++) {
+  const el = document.createElement("div");
+  el.className = "segment";
+  pendulum.appendChild(el);
+
+  points.push({
+    x: 120,
+    y: i * LENGTH,
+    ox: 120,
+    oy: i * LENGTH,
+    el
+  });
+}
+
+// узел
+const knot = document.createElement("div");
+knot.id = "knot";
+pendulum.appendChild(knot);
+
+// яйца
+const balls = document.createElement("div");
+balls.id = "balls";
+balls.innerHTML = `
+  <div class="ball left"></div>
+  <div class="ball right"></div>
+`;
+pendulum.appendChild(balls);
+
+function update() {
+  // движение
+  points.forEach((p, i) => {
+    if (i === 0) {
+      p.x += (mouseX - p.x) * 0.06;
+      p.y = 0;
+    } else {
+      const vx = (p.x - p.ox) * FRICTION;
+      const vy = (p.y - p.oy) * FRICTION;
+
+      p.ox = p.x;
+      p.oy = p.y;
+
+      p.x += vx;
+      p.y += vy + GRAVITY;
+    }
+  });
+
+  // ограничения
+  for (let k = 0; k < 6; k++) {
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1];
+      const b = points[i];
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const diff = (dist - LENGTH) / dist;
+
+      if (i !== 1) {
+        a.x += dx * diff * 0.5;
+        a.y += dy * diff * 0.5;
+      }
+      b.x -= dx * diff * 0.5;
+      b.y -= dy * diff * 0.5;
+    }
+  }
+
+  // отрисовка верёвки
+  points.forEach((p, i) => {
+    const t = 1 - i / SEGMENTS;
+    p.el.style.width = `${4 + t * 2}px`;
+    p.el.style.height = `${LENGTH}px`;
+    p.el.style.transform = `translate(${p.x - 3}px, ${p.y}px)`;
+  });
+
+  const end = points[points.length - 1];
+
+  // узел
+  knot.style.transform = `translate(${end.x - 8}px, ${end.y}px)`;
+
+  // яйца ПРИВЯЗАНЫ К УЗЛУ
+  balls.style.transform =
+    `translate(${end.x - 78}px, ${end.y + 18}px)`;
+
+  requestAnimationFrame(update);
+}
+
+update();
+</script>
+
+</body>
 </html>
