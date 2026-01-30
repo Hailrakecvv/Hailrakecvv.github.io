@@ -15,7 +15,6 @@ body {
   flex-direction: column-reverse;
 }
 
-/* КОТ */
 .card {
   display: flex;
   justify-content: center;
@@ -35,7 +34,6 @@ body {
   color: white;
 }
 
-/* МАЯТНИК */
 #pendulum {
   position: fixed;
   top: 0;
@@ -43,7 +41,6 @@ body {
   pointer-events: none;
 }
 
-/* ВЕРЁВКА */
 .segment {
   position: absolute;
   border-radius: 4px;
@@ -55,7 +52,6 @@ body {
   );
 }
 
-/* УЗЕЛ */
 #knot {
   position: absolute;
   width: 16px;
@@ -64,7 +60,6 @@ body {
   background: radial-gradient(circle, #ddd, #888);
 }
 
-/* ЯЙЦА */
 #balls {
   position: absolute;
   display: flex;
@@ -108,7 +103,6 @@ let mouseX = 120;
 
 document.addEventListener("mousemove", e => mouseX = e.clientX);
 
-// точки верёвки
 const points = [];
 for (let i = 0; i < SEGMENTS; i++) {
   const el = document.createElement("div");
@@ -124,12 +118,10 @@ for (let i = 0; i < SEGMENTS; i++) {
   });
 }
 
-// узел
 const knot = document.createElement("div");
 knot.id = "knot";
 pendulum.appendChild(knot);
 
-// яйца
 const balls = document.createElement("div");
 balls.id = "balls";
 balls.innerHTML = `
@@ -139,7 +131,6 @@ balls.innerHTML = `
 pendulum.appendChild(balls);
 
 function update() {
-  // движение
   points.forEach((p, i) => {
     if (i === 0) {
       p.x += (mouseX - p.x) * 0.06;
@@ -156,7 +147,6 @@ function update() {
     }
   });
 
-  // ограничения
   for (let k = 0; k < 6; k++) {
     for (let i = 1; i < points.length; i++) {
       const a = points[i - 1];
@@ -175,7 +165,6 @@ function update() {
     }
   }
 
-  // отрисовка верёвки
   points.forEach((p, i) => {
     const t = 1 - i / SEGMENTS;
     p.el.style.width = `${4 + t * 2}px`;
@@ -185,10 +174,8 @@ function update() {
 
   const end = points[points.length - 1];
 
-  // узел
   knot.style.transform = `translate(${end.x - 8}px, ${end.y}px)`;
 
-  // яйца ПРИВЯЗАНЫ К УЗЛУ
   balls.style.transform =
     `translate(${end.x - 78}px, ${end.y + 18}px)`;
 
@@ -200,3 +187,4 @@ update();
 
 </body>
 </html>
+
